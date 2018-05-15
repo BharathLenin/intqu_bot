@@ -8,7 +8,7 @@ function activate(context) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "intqu" is now active!');
+    console.log('Congratulations, your extension is install');
 
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
@@ -16,8 +16,24 @@ function activate(context) {
     let disposable = vscode.commands.registerCommand('extension.sayHello', function () {
         // The code you place here will be executed every time your command is executed
 
+        let editor = vscode.window.activeTextEditor;
+
+        let selection = editor.selection;
+        let text = editor.document.getText();
+
+        if (text.indexOf('img') >= 0)
+        {
+            vscode.window.showInformationMessage('you typed img');
+        } else {
+            vscode.window.showInformationMessage('you havent typed v');
+        }
+
+
         // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World! From IntQu bot');
+        // vscode.window.showInformationMessage('Hello World! From IntQu bot');
+
+        // vscode.window.showInformationMessage('Selected characters: ' + text.length);
+
     });
 
     context.subscriptions.push(disposable);
