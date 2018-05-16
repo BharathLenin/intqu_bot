@@ -1,6 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const request = require('request');
+
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -21,15 +23,23 @@ function activate(context) {
         let selection = editor.selection;
         let text = editor.document.getText();
 
-        if (text.indexOf('img') >= 0)
-        {
-            
+        if (text.indexOf('img') >= 0) {
+
             console.log(text.indexOf('img'));
-            let position=editor.document.positionAt(text.indexOf('img'));
-            let lineNumber=position.line;
+            let position = editor.document.positionAt(text.indexOf('img'));
+            let lineNumber = position.line;
             let column = position.character;
-            console.log(lineNumber+'  '+column);
-            vscode.window.showInformationMessage('you typed img present at line Number : '+(lineNumber+1));
+            console.log(lineNumber + '  ' + column);
+            vscode.window.showInformationMessage('you typed img present at line Number : ' + (lineNumber + 1));
+
+
+            //pass this line of code to python program as a callback
+            request.post('C:\Users\bxk8340\AppData\Local\Programs\Python\Python36-32\dev\sample.py',
+                function optionalCallback(err, httpResponse, body) {
+                    console.log(httpResponse);
+            })
+
+
         } else {
             console.log(text.indexOf('img'));
             vscode.window.showInformationMessage('you havent typed v');
