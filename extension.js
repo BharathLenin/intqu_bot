@@ -23,8 +23,15 @@ function activate(context) {
 
         if (text.indexOf('img') >= 0)
         {
-            vscode.window.showInformationMessage('you typed img');
+            
+            console.log(text.indexOf('img'));
+            let position=editor.document.positionAt(text.indexOf('img'));
+            let lineNumber=position.line;
+            let column = position.character;
+            console.log(lineNumber+'  '+column);
+            vscode.window.showInformationMessage('you typed img present at line Number : '+(lineNumber+1));
         } else {
+            console.log(text.indexOf('img'));
             vscode.window.showInformationMessage('you havent typed v');
         }
 
