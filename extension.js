@@ -30,6 +30,15 @@ function activate(context) {
             let lineText = editor.document.lineAt(lineNumber).text;            
             vscode.window.showInformationMessage('you typed img present at line Number : '+(lineNumber+1));
             vscode.window.showInformationMessage('line Text : '+lineText);
+
+            //pass this line of code to python program as a callback
+            let requestUrl= 'http://localhost:5000/getKnowlegdeBase/' + lineText
+            request(requestUrl, function (error, response, body) {
+                console.log('error:', error);
+                console.log('statusCode:', response.body);
+                console.log('body:', body);
+            })
+
         } else {
             vscode.window.showInformationMessage('you havent typed v');
         }
