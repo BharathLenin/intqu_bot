@@ -11,17 +11,24 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.activateBot",
-        "onCommand:extension.hello"     
+        "*"
     ],
     "main": "./extension",
     "contributes": {
+        "keybindings": [{
+            "command": "extension.activateBot",
+            "key": "ctrl+enter",
+            "when": "editorTextFocus"
+        }],
         "commands": [{
             "command": "extension.hello",
             "title": "Hello World"
         },{
             "command": "extension.activateBot",
             "title": "Activate INTQU_Bot"
+        }, {
+            "command": "captureDevInformation.start",
+            "title": "Start Coding"
         }]
     },
     "scripts": {
