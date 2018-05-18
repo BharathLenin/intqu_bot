@@ -67,16 +67,21 @@ function activate(context) {
             let position=editor.document.positionAt(text.indexOf('img'));
             let lineNumber=position.line;
             let lineText = editor.document.lineAt(lineNumber).text;            
-            vscode.window.showInformationMessage('you typed img present at line Number : '+(lineNumber+1));
-            vscode.window.showInformationMessage('line Text : '+lineText);
+            // vscode.window.showInformationMessage('you typed img present at line Number : '+(lineNumber+1));
+            // vscode.window.showInformationMessage('line Text : '+lineText);
+            console.log('lineText: ',lineText);
 
             //pass this line of code to python program as a callback
-            let requestUrl= 'http://localhost:5000/getKnowlegdeBase/' + lineText
-            // request(requestUrl, function (error, response, body) {
-            //     console.log('error:', error);
-            //     console.log('statusCode:', response.body);
-            //     console.log('body:', body);
-            // })
+            let requestUrl= 'http://localhost:5000/getKnowlegdeBase/'+lineText;
+            console.log('requestUrl: ',requestUrl);
+            
+            request(requestUrl, function (error, response, body) {
+                // console.log('error:', error);
+                console.log('statusCode:', response.body);
+                // console.log('body:', body);
+                vscode.window.showInformationMessage('line Text : '+ response.body);
+                
+            })
 
         } else {
             vscode.window.showInformationMessage('you havent typed v');
@@ -102,6 +107,8 @@ function getWebviewContent() {
     return `<!DOCTYPE html>
     <html>
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src vscode-resource:; style-src vscode-resource:;">
+    <script src="demo_script_src.js">
+    </script>
     <body>
     
     <h1>Hi there! I am intqu bot.</h1>
@@ -117,16 +124,8 @@ function getWebviewContent() {
     <input type="checkbox" name="design" value="Responsive">Is your design Responsive<br> <br>
     <input type="checkbox" name="design" value="Responsive">Are you going to teach me?<br>
     <br>
-    <button onclick="saveData()">Ok</button>
+    <button onclick="alert('hi me')">Ok</button>
     </body>
-    <script>
-    function saveData() {
-        var developerName  = document.getElementById("devName");
-        vscode.postMessage({
-            command: 'alert',
-            text: '🐛  on line ' + developerName
-        })
-      }
-    </script>
+    
     </html>`;
 }
