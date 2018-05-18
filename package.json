@@ -11,13 +11,17 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:extension.activateBot",
+        "onCommand:extension.hello"     
     ],
     "main": "./extension",
     "contributes": {
         "commands": [{
-            "command": "extension.sayHello",
+            "command": "extension.hello",
             "title": "Hello World"
+        },{
+            "command": "extension.activateBot",
+            "title": "Activate INTQU_Bot"
         }]
     },
     "scripts": {

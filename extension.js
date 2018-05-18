@@ -15,7 +15,20 @@ function activate(context) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.sayHello', function () {
+
+    vscode.commands.registerCommand('extension.hello', () => {
+        console.log('hello extension is executed');
+        let editor = vscode.window.activeTextEditor;
+
+        // let selection = editor.selection;
+        let text = editor.document.getText();
+
+        if (text.indexOf('test') >= 0) {
+            vscode.window.showInformationMessage('Hello World!');
+        }
+    });
+
+    let disposable = vscode.commands.registerCommand('extension.activateBot', function () {
         // The code you place here will be executed every time your command is executed
 
         let editor = vscode.window.activeTextEditor;
@@ -33,21 +46,16 @@ function activate(context) {
 
             //pass this line of code to python program as a callback
             let requestUrl= 'http://localhost:5000/getKnowlegdeBase/' + lineText
-            request(requestUrl, function (error, response, body) {
-                console.log('error:', error);
-                console.log('statusCode:', response.body);
-                console.log('body:', body);
-            })
+            // request(requestUrl, function (error, response, body) {
+            //     console.log('error:', error);
+            //     console.log('statusCode:', response.body);
+            //     console.log('body:', body);
+            // })
 
         } else {
             vscode.window.showInformationMessage('you havent typed v');
         }
 
-
-        // Display a message box to the user
-        // vscode.window.showInformationMessage('Hello World! From IntQu bot');
-
-        // vscode.window.showInformationMessage('Selected characters: ' + text.length);
 
     });
 
