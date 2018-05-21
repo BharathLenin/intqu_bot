@@ -72,7 +72,7 @@ function activate(context) {
             console.log('lineText: ',lineText);
 
             //pass this line of code to python program as a callback
-            let requestUrl= 'http://localhost:5000/getKnowlegdeBase/'+lineText;
+            let requestUrl= 'http://localhost:5000/getKnowledgeBase?statement='+lineText;
             console.log('requestUrl: ',requestUrl);
             
             request(requestUrl, function (error, response, body) {
@@ -91,7 +91,7 @@ function activate(context) {
     });
 
     
-    // vscode.commands.executeCommand('extension.hello');
+    vscode.commands.executeCommand('captureDevInformation.start');
 
     
     context.subscriptions.push(disposable);
