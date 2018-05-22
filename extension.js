@@ -14,7 +14,7 @@ function activate(context) {
 
     context.subscriptions.push(vscode.commands.registerCommand('captureDevInformation.start', () => {
         // Create and show panel
-        var panel = vscode.window.createWebviewPanel('catCoding', "Developer Profile", vscode.ViewColumn.One, { });
+        var panel = vscode.window.createWebviewPanel('catCoding', "Developer Profile", vscode.ViewColumn.One, {enableScripts: true });
 
         // And set its HTML content
         panel.webview.html = getWebviewContent();
@@ -79,7 +79,7 @@ function activate(context) {
                 // console.log('error:', error);
                 console.log('statusCode:', response.body);
                 // console.log('body:', body);
-                vscode.window.showInformationMessage('line Text : '+ response.body);
+                vscode.window.showInformationMessage('Line No ' + (lineNumber + 1) + ' : '+ response.body);
                 
             })
 
@@ -106,9 +106,36 @@ exports.deactivate = deactivate;
 function getWebviewContent() {
     return `<!DOCTYPE html>
     <html>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src vscode-resource:; style-src vscode-resource:;">
-    <script src="demo_script_src.js">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:;script-src https: 'unsafe-inline' vscode-resource:; style-src vscode-resource:;">
+    <script>
+    function saveData(developerName) {
+
+
+        var x = document.getElementById("showInformation");
+          x.innerText = "Hello " + developerName + ", we saved your information!!";
+
+        // const vscode = acquireVsCodeApi();
+        // var developerName  = document.getElementById("devName");
+        //vscode.postMessage({command: 'alert',text: '🐛  on line ' + developerName})
+        //window.parent.postMessage({type: 'dev-details',devName: developerName});
+
+
+      }
     </script>
+    <style>
+.button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+</style>
     <body>
     
     <h1>Hi there! I am intqu bot.</h1>
@@ -116,15 +143,28 @@ function getWebviewContent() {
     <h2>Say something about you...</h2>
     <form>
      Name: <input type="text" id="devName" name="name"> <br> <br>
-     Experience (in years): <input type="number" name="experience"><br> <br>
-     Technology(comma seperated): <input type="text" name="technology"><br> <br>
+     Experience (in years): <input type="number" id="devexp" name="experience"><br> <br>
+     Technology(comma seperated): <input type="text" id="devTech" name="technology"><br> <br>
     </form>
     
-    <br> <br>
-    <input type="checkbox" name="design" value="Responsive">Is your design Responsive<br> <br>
-    <input type="checkbox" name="design" value="Responsive">Are you going to teach me?<br>
     <br>
-    <button onclick="alert('hi me')">Ok</button>
+    
+    <input type="checkbox" name="resposive" value="resposive">Responsive
+<br>
+<input type="checkbox" name="lingual" value="lingual">Multilingual
+    
+    
+    <br>
+    <h3>
+    <input type="radio" name="mode" value="learn">Learning mode
+    </h3>
+        <h3>
+    <input type="radio" name="mode" value="expert">Expert mode
+  </h3>
+    <button type="button" class="button" onclick="saveData(devName.value,devexp.value,devTech.value)">Ok</button>
+    <br>
+    <h2 id="showInformation">
+    </h2>
     </body>
     
     </html>`;
