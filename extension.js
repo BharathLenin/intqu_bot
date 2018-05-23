@@ -11,6 +11,7 @@ function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension is install');
+    let mode = 'learning';
 
     /************ Developer profile    ***********/
     context.subscriptions.push(vscode.commands.registerCommand('captureDevInformation.start', () => {
@@ -19,33 +20,34 @@ function activate(context) {
 
         // And set its HTML content
         panel.webview.html = getWebviewContent();
-        let devDetails={};
+        let devDetails = {};
 
 
         panel.webview.onDidReceiveMessage(e => {
             switch (e.type) {
-              case 'dev-details':
-              devDetails=e.devDetails;
-              console.log(devDetails);
-              let requestUrl= 'http://localhost:5000/updateUserProfile?';
-              let formData="name="+devDetails.name+
-                "&experience="+devDetails.experience+
-                "&technology="+devDetails.technology+
-                "&responsive="+devDetails.responsive+
-                "&design="+devDetails.design+
-                "&mode="+devDetails.mode;
-               let url= requestUrl + formData;
-              
-     
-              console.log(formData);
-              
-                request(url, function (error, response, body) {
-                    console.log(error);  
-                    console.log(response);                
-                });
-                break;
+                case 'dev-details':
+                    devDetails = e.devDetails;
+                    console.log(devDetails);
+                    mode = devDetails.mode;
+
+                    let requestUrl = 'http://localhost:5000/updateUserProfile?';
+                    let params = "name=" + devDetails.name +
+                        "&experience=" + devDetails.experience +
+                        "&technology=" + devDetails.technology +
+                        "&responsive=" + devDetails.responsive +
+                        "&design=" + devDetails.design +
+                        "&mode=" + devDetails.mode;
+                    let url = requestUrl + params;
+
+                    console.log(params);
+
+                    request(url, function (error, response, body) {
+                        console.log(error);
+                        console.log(response);
+                    });
+                    break;
             }
-          }, null, context.subscriptions);
+        }, null, context.subscriptions);
 
         // Reset when the current panel is closed
         panel.onDidDispose(() => {
@@ -53,18 +55,18 @@ function activate(context) {
         }, null, context.subscriptions);
     }));
 
-    let mode = 'learning';
+
 
     /******** Hello world test notification ********/
     vscode.commands.registerCommand('extension.hello', () => {
         console.log('hello extension is executed');
 
-        vscode.window.showInformationMessage(mode + 'Hello World !!');
+        vscode.window.showInformationMessage(mode + ' --> new mode !!');
 
     });
 
 
-     /******** Main BOT  ********/
+    /******** Main BOT  ********/
     let disposable = vscode.commands.registerCommand('extension.activateBot', function () {
         // The code you place here will be executed every time your command is executed
 
@@ -75,20 +77,20 @@ function activate(context) {
 
         // let position = editor.document.positionAt(text.indexOf('img'));
         // let lineNumber = position.line;
-        let lineNumber = editor.document.lineCount -1;
+        let lineNumber = editor.document.lineCount - 1;
         console.log("lineNumber " + lineNumber);
-        let lineText = editor.document.lineAt(lineNumber - 1).text;
+        let lineText = editor.document.lineAt(lineNumber).text;
         console.log('lineText: ', lineText);
 
         //pass this line of code to python program as a callback
-        let requestUrl = 'http://localhost:5000/getKnowledgeBase?mode='+mode+'&statement=' + lineText;
+        let requestUrl = 'http://localhost:5000/getKnowledgeBase?mode=' + mode + '&statement=' + lineText;
         console.log('requestUrl: ', requestUrl);
 
         request(requestUrl, function (error, response, body) {
             // console.log('error:', error);
             console.log('statusCode:', response.body);
-            if(response.body != 'success' || mode == 'expert') {
-             vscode.window.showInformationMessage('Line ' + (lineNumber + 1) + ' : ' + response.body);
+            if (response.body != 'success' || mode == 'expert') {
+                vscode.window.showInformationMessage('Line ' + (lineNumber + 1) + ' : ' + response.body);
             }
         })
 
@@ -107,46 +109,50 @@ exports.deactivate = deactivate;
 function getWebviewContent() {
     return `
     <!DOCTYPE html>
-<html>
-   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:;script-src https: 'unsafe-inline' vscode-resource:; style-src vscode-resource:;">
-   <script>
-
-
-
-   function saveData() {
-    var x = document.getElementById("showInformation");
-    x.innerText = "Hello " + developerName + ", we saved your information!!";
-
-    const vscode = acquireVsCodeApi();
-    var radio;
-    var radios = document.getElementsByName('mode');
-        for (var i = 0, length = radios.length; i < length; i++)
-        {
-        if (radios[i].checked)
-        {
-            radio=radios[i].value;
-        break;
+    <html>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:;script-src https: 'unsafe-inline' vscode-resource:; style-src vscode-resource:;">
+    <script>
+      function saveData() {
+        var x = document.getElementById("showInformation");
+        x.innerText = "Hello " + devName.value + ", we saved your information!!";
+    
+        const vscode = acquireVsCodeApi();
+        var radio;
+        var radios = document.getElementsByName('mode');
+        for (var i = 0, length = radios.length; i < length; i++) {
+          if (radios[i].checked) {
+            radio = radios[i].value;
+            break;
+          }
         }
-        }
-    vscode.postMessage({
-        type: 'dev-details',
-        devDetails: {
-                    "name":devName.value,
-                    "experience":devexp.value,
-                    "technology":devTech.value,
-                    "responsive":resposive.checked,
-                    "design":lingual.checked,
-                    "mode":radio
-                    }
-      });
-      </script>
-   <body>
+        vscode.postMessage({
+          type: 'dev-details',
+          devDetails: {
+            "name": devName.value,
+            "experience": devexp.value,
+            "technology": devTech.value,
+            "responsive": resposive.checked,
+            "design": lingual.checked,
+            "mode": radio
+          }
+        });
+      }
+    </script>
+    
+    <body>
       <h1>Hi there! I am IntQu bot.</h1>
       <h2>Say something about you...</h2>
       <form>
-         Name: <input type="text" id="devName" name="name"> <br> <br>
-         Experience (in years): <input type="number" id="devexp" name="experience"><br> <br>
-         Technology(comma seperated): <input type="text" id="devTech" name="technology"><br> <br>
+        Name:
+        <input type="text" id="devName" name="name">
+        <br>
+        <br> Experience (in years):
+        <input type="number" id="devexp" name="experience">
+        <br>
+        <br> Technology(comma seperated):
+        <input type="text" id="devTech" name="technology">
+        <br>
+        <br>
       </form>
       <br>
       <input type="checkbox" name="resposive" value="resposive" id="resposive">Responsive
@@ -154,16 +160,17 @@ function getWebviewContent() {
       <br>
       <br>
       <h3>
-         <input type="radio" name="mode" value="learn">Learning mode
+        <input type="radio" name="mode" value="learn">Learning mode
       </h3>
       <h3>
-         <input type="radio" name="mode" value="expert">Expert mode
+        <input type="radio" name="mode" value="expert">Expert mode
       </h3>
-      <input style="background-color:#4CAF50;font-size: 24px;" value="Save" type="button"  onclick="saveData(devName.value,devexp.value,devTech.value)">
+      <input style="background-color:#4CAF50;font-size: 24px;" value="Save" type="button" onclick="saveData(devName.value,devexp.value,devTech.value)">
       <br>
       <h2 id="showInformation" style="color:red;">
       </h2>
-   </body>
-</html>
+    </body>
+    
+    </html>
 `;
 }
