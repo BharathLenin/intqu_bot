@@ -33,9 +33,9 @@ function activate(context) {
                     let requestUrl = 'http://localhost:5000/updateUserProfile?';
                     let params = "name=" + devDetails.name +
                         "&experience=" + devDetails.experience +
-                        "&technology=" + devDetails.technology +
+                        "&technology=" + devDetails.technology +                       
                         "&responsive=" + devDetails.responsive +
-                        "&design=" + devDetails.design +
+                        "&lingual=" + devDetails.lingual +
                         "&mode=" + devDetails.mode;
                     let url = requestUrl + params;
 
@@ -71,25 +71,25 @@ function activate(context) {
         // The code you place here will be executed every time your command is executed
 
         let editor = vscode.window.activeTextEditor;
-        let selection = editor.selection;
+        let selection = editor.selection.active;
+        console.log(selection);
 
         let text = editor.document.getText();
 
-        // let position = editor.document.positionAt(text.indexOf('img'));
-        // let lineNumber = position.line;
-        let lineNumber = editor.document.lineCount - 1;
+        let lineNumber = selection.line;
         console.log("lineNumber " + lineNumber);
         let lineText = editor.document.lineAt(lineNumber).text;
-        console.log('lineText: ', lineText);
+        let lineTextTrimmed = lineText.trim();
+        console.log('lineText: ', lineTextTrimmed);
 
         //pass this line of code to python program as a callback
-        let requestUrl = 'http://localhost:5000/getKnowledgeBase?mode=' + mode + '&statement=' + lineText;
+        let requestUrl = 'http://localhost:5000/getKnowledgeBase?mode=' + mode + '&statement=' + lineTextTrimmed;
         console.log('requestUrl: ', requestUrl);
 
         request(requestUrl, function (error, response, body) {
             // console.log('error:', error);
             console.log('statusCode:', response.body);
-            if (response.body != 'success' || mode == 'expert') {
+            if (response.body.toLowerCase() != 'success' || mode != 'expert') {
                 vscode.window.showInformationMessage('Line ' + (lineNumber + 1) + ' : ' + response.body);
             }
         })
@@ -132,7 +132,7 @@ function getWebviewContent() {
             "experience": devexp.value,
             "technology": devTech.value,
             "responsive": resposive.checked,
-            "design": lingual.checked,
+            "lingual": lingual.checked,
             "mode": radio
           }
         });
@@ -160,7 +160,7 @@ function getWebviewContent() {
       <br>
       <br>
       <h3>
-        <input type="radio" name="mode" value="learn">Learning mode
+        <input type="radio" name="mode" value="learning">Learning mode
       </h3>
       <h3>
         <input type="radio" name="mode" value="expert">Expert mode
