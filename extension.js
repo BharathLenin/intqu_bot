@@ -89,7 +89,8 @@ function activate(context) {
         request(requestUrl, function (error, response, body) {
             // console.log('error:', error);
             console.log('statusCode:', response.body);
-            if (response.body.toLowerCase() != 'success' || mode != 'expert') {
+            if (mode == 'learning') {
+                if(response.body.indexOf('No Matching Rules') == 0 && response.body == 'success') { return;}
                 vscode.window.showInformationMessage('Line ' + (lineNumber + 1) + ' : ' + response.body);
             }
         })
