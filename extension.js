@@ -12,21 +12,40 @@ function activate(context) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension is install');
 
+    /************ Developer profile    ***********/
     context.subscriptions.push(vscode.commands.registerCommand('captureDevInformation.start', () => {
         // Create and show panel
-        var panel = vscode.window.createWebviewPanel('catCoding', "Developer Profile", vscode.ViewColumn.One, {enableScripts: true });
+        var panel = vscode.window.createWebviewPanel('catCoding', "Developer Profile", vscode.ViewColumn.One, { enableScripts: true });
 
         // And set its HTML content
         panel.webview.html = getWebviewContent();
+        let devDetails={};
 
 
-        panel.webview.onDidReceiveMessage(message => {
-            switch (message.command) {
-                case 'alert':
-                    vscode.window.showErrorMessage(message.text);
-                    return;
+        panel.webview.onDidReceiveMessage(e => {
+            switch (e.type) {
+              case 'dev-details':
+              devDetails=e.devDetails;
+              console.log(devDetails);
+              let requestUrl= 'http://localhost:5000/updateUserProfile?';
+              let formData="name="+devDetails.name+
+                "&experience="+devDetails.experience+
+                "&technology="+devDetails.technology+
+                "&responsive="+devDetails.responsive+
+                "&design="+devDetails.design+
+                "&mode="+devDetails.mode;
+               let url= requestUrl + formData;
+              
+     
+              console.log(formData);
+              
+                request(url, function (error, response, body) {
+                    console.log(error);  
+                    console.log(response);                
+                });
+                break;
             }
-        }, undefined, context.subscriptions);
+          }, null, context.subscriptions);
 
         // Reset when the current panel is closed
         panel.onDidDispose(() => {
@@ -34,66 +53,48 @@ function activate(context) {
         }, null, context.subscriptions);
     }));
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
+    let mode = 'learning';
 
-    // vscode.workspace.openTextDocument('./profile.json').then((document) => {
-    //     let text = document.getText();
-    //     console.log(text);
-    //   }).fail((err)=>{
-    //       console.log(err);
-    //   });
-
-
+    /******** Hello world test notification ********/
     vscode.commands.registerCommand('extension.hello', () => {
         console.log('hello extension is executed');
 
-            vscode.window.showInformationMessage('Hello World !!');
+        vscode.window.showInformationMessage(mode + 'Hello World !!');
 
     });
 
 
+     /******** Main BOT  ********/
     let disposable = vscode.commands.registerCommand('extension.activateBot', function () {
         // The code you place here will be executed every time your command is executed
 
         let editor = vscode.window.activeTextEditor;
-
         let selection = editor.selection;
+
         let text = editor.document.getText();
 
-        if (text.indexOf('img') >= 0)
-        {
-            let position=editor.document.positionAt(text.indexOf('img'));
-            let lineNumber=position.line;
-            let lineText = editor.document.lineAt(lineNumber).text;            
-            // vscode.window.showInformationMessage('you typed img present at line Number : '+(lineNumber+1));
-            // vscode.window.showInformationMessage('line Text : '+lineText);
-            console.log('lineText: ',lineText);
+        // let position = editor.document.positionAt(text.indexOf('img'));
+        // let lineNumber = position.line;
+        let lineNumber = editor.document.lineCount -1;
+        console.log("lineNumber " + lineNumber);
+        let lineText = editor.document.lineAt(lineNumber - 1).text;
+        console.log('lineText: ', lineText);
 
-            //pass this line of code to python program as a callback
-            let requestUrl= 'http://localhost:5000/getKnowledgeBase?statement='+lineText;
-            console.log('requestUrl: ',requestUrl);
-            
-            request(requestUrl, function (error, response, body) {
-                // console.log('error:', error);
-                console.log('statusCode:', response.body);
-                // console.log('body:', body);
-                vscode.window.showInformationMessage('Line No ' + (lineNumber + 1) + ' : '+ response.body);
-                
-            })
+        //pass this line of code to python program as a callback
+        let requestUrl = 'http://localhost:5000/getKnowledgeBase?mode='+mode+'&statement=' + lineText;
+        console.log('requestUrl: ', requestUrl);
 
-        } else {
-            vscode.window.showInformationMessage('you havent typed v');
-        }
-
+        request(requestUrl, function (error, response, body) {
+            // console.log('error:', error);
+            console.log('statusCode:', response.body);
+            if(response.body != 'success' || mode == 'expert') {
+             vscode.window.showInformationMessage('Line ' + (lineNumber + 1) + ' : ' + response.body);
+            }
+        })
 
     });
 
-    
     vscode.commands.executeCommand('captureDevInformation.start');
-
-    
     context.subscriptions.push(disposable);
 }
 exports.activate = activate;
@@ -109,17 +110,36 @@ function getWebviewContent() {
 <html>
    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:;script-src https: 'unsafe-inline' vscode-resource:; style-src vscode-resource:;">
    <script>
-      function saveData(developerName) {
 
-          var x = document.getElementById("showInformation");
-          x.innerText = "Hello " + developerName + ", we saved your information!!";
-      
-          // const vscode = acquireVsCodeApi();
-          // var developerName  = document.getElementById("devName");
-          //vscode.postMessage({command: 'alert',text: '🐛  on line ' + developerName})
-          //window.parent.postMessage({type: 'dev-details',devName: developerName});
+
+
+   function saveData() {
+    var x = document.getElementById("showInformation");
+    x.innerText = "Hello " + developerName + ", we saved your information!!";
+
+    const vscode = acquireVsCodeApi();
+    var radio;
+    var radios = document.getElementsByName('mode');
+        for (var i = 0, length = radios.length; i < length; i++)
+        {
+        if (radios[i].checked)
+        {
+            radio=radios[i].value;
+        break;
         }
-   </script>
+        }
+    vscode.postMessage({
+        type: 'dev-details',
+        devDetails: {
+                    "name":devName.value,
+                    "experience":devexp.value,
+                    "technology":devTech.value,
+                    "responsive":resposive.checked,
+                    "design":lingual.checked,
+                    "mode":radio
+                    }
+      });
+      </script>
    <body>
       <h1>Hi there! I am IntQu bot.</h1>
       <h2>Say something about you...</h2>
@@ -129,8 +149,8 @@ function getWebviewContent() {
          Technology(comma seperated): <input type="text" id="devTech" name="technology"><br> <br>
       </form>
       <br>
-      <input type="checkbox" name="resposive" value="resposive">Responsive
-      <input type="checkbox" name="lingual" value="lingual">Multilingual
+      <input type="checkbox" name="resposive" value="resposive" id="resposive">Responsive
+      <input type="checkbox" name="lingual" value="lingual" id="lingual">Multilingual
       <br>
       <br>
       <h3>
